@@ -1,608 +1,605 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RAGSPRO — AI Automation & Digital Experiences</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,900&family=DM+Sans:wght@200;300;400&display=swap" rel="stylesheet">
-<style>
-  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
-  :root {
-    --black: #080808;
-    --white: #f0ece4;
-    --gold: #c9a84c;
-    --gold-dim: #8a6d2e;
-    --muted: #4a4540;
-    --serif: 'Playfair Display', Georgia, serif;
-    --sans: 'DM Sans', sans-serif;
-  }
-
-  html { scroll-behavior: smooth; }
-
-  body {
-    background: var(--black);
-    color: var(--white);
-    font-family: var(--sans);
-    font-weight: 300;
-    overflow-x: hidden;
-    cursor: none;
-  }
-
-  /* ─── CURSOR ─── */
-  .cursor {
-    position: fixed; width: 10px; height: 10px;
-    background: var(--gold); border-radius: 50%;
-    pointer-events: none; z-index: 9999;
-    transform: translate(-50%, -50%);
-    transition: transform 0.1s, width 0.3s, height 0.3s, opacity 0.3s;
-  }
-  .cursor-ring {
-    position: fixed; width: 36px; height: 36px;
-    border: 1px solid rgba(201,168,76,0.5); border-radius: 50%;
-    pointer-events: none; z-index: 9998;
-    transform: translate(-50%, -50%);
-    transition: transform 0.18s ease-out, width 0.3s, height 0.3s;
-  }
-  a:hover ~ .cursor, button:hover ~ .cursor { transform: translate(-50%,-50%) scale(2.5); }
-
-  /* ─── NAV ─── */
-  nav {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 2rem 4rem;
-    mix-blend-mode: difference;
-  }
-  .nav-logo {
-    font-family: var(--serif); font-weight: 900; font-size: 1.1rem;
-    letter-spacing: 0.3em; text-transform: uppercase; color: var(--white);
-    text-decoration: none;
-  }
-  .nav-links { display: flex; gap: 2.5rem; list-style: none; }
-  .nav-links a {
-    font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
-    color: var(--white); text-decoration: none; opacity: 0.7;
-    transition: opacity 0.3s;
-  }
-  .nav-links a:hover { opacity: 1; }
-
-  /* ─── HERO SLIDER ─── */
-  .hero {
-    position: relative; height: 100vh; overflow: hidden;
-    display: flex; align-items: flex-end; padding: 0 4rem 8rem;
-  }
-
-  .slide {
-    position: absolute; inset: 0;
-    background-size: cover; background-position: center;
-    opacity: 0; transition: opacity 1.2s cubic-bezier(0.77,0,0.18,1);
-    will-change: opacity;
-  }
-  .slide::after {
-    content: ''; position: absolute; inset: 0;
-    background: linear-gradient(to top, rgba(8,8,8,0.85) 0%, rgba(8,8,8,0.2) 60%, transparent 100%);
-  }
-  .slide.active { opacity: 1; }
-
-  .slide-1 { background-image: url('https://images.unsplash.com/photo-1517697471339-4aa32003c11a?w=1600&q=80'); }
-  .slide-2 { background-image: url('https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=1600&q=80'); }
-  .slide-3 { background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1600&q=80'); }
-  .slide-4 { background-image: url('https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1600&q=80'); }
-
-  .hero-content {
-    position: relative; z-index: 2;
-    max-width: 900px;
-  }
-
-  .hero-eyebrow {
-    font-size: 0.65rem; letter-spacing: 0.35em; text-transform: uppercase;
-    color: var(--gold); margin-bottom: 1.2rem; opacity: 0;
-    animation: fadeUp 1s 0.4s forwards;
-  }
-
-  .hero-title {
-    font-family: var(--serif); font-size: clamp(3.5rem, 9vw, 8rem);
-    font-weight: 900; line-height: 0.95; margin-bottom: 2rem;
-    overflow: hidden;
-  }
-
-  .hero-line { display: block; opacity: 0; transform: translateY(100%); }
-  .hero-line:nth-child(1) { animation: slideUp 0.9s 0.6s cubic-bezier(0.16,1,0.3,1) forwards; }
-  .hero-line:nth-child(2) { animation: slideUp 0.9s 0.8s cubic-bezier(0.16,1,0.3,1) forwards; font-style: italic; color: var(--gold); }
-  .hero-line:nth-child(3) { animation: slideUp 0.9s 1.0s cubic-bezier(0.16,1,0.3,1) forwards; }
-
-  .hero-sub {
-    font-size: 0.85rem; letter-spacing: 0.05em; color: rgba(240,236,228,0.6);
-    max-width: 400px; line-height: 1.8; opacity: 0;
-    animation: fadeUp 1s 1.2s forwards; margin-bottom: 3rem;
-  }
-
-  .hero-cta {
-    display: inline-flex; align-items: center; gap: 1rem;
-    font-size: 0.7rem; letter-spacing: 0.25em; text-transform: uppercase;
-    color: var(--white); text-decoration: none; opacity: 0;
-    animation: fadeUp 1s 1.4s forwards;
-    border-bottom: 1px solid var(--gold); padding-bottom: 0.4rem;
-    transition: color 0.3s, gap 0.3s;
-  }
-  .hero-cta:hover { color: var(--gold); gap: 1.8rem; }
-  .hero-cta::after { content: '→'; font-size: 1rem; }
-
-  /* ─── SLIDE COUNTER ─── */
-  .slide-counter {
-    position: absolute; right: 4rem; bottom: 8rem; z-index: 10;
-    font-family: var(--serif); font-size: 0.7rem; letter-spacing: 0.2em;
-    color: rgba(240,236,228,0.4); writing-mode: vertical-rl;
-    display: flex; align-items: center; gap: 1rem;
-  }
-  .slide-dots {
-    position: absolute; bottom: 4rem; left: 50%; transform: translateX(-50%);
-    z-index: 10; display: flex; gap: 0.5rem;
-  }
-  .dot {
-    width: 20px; height: 1px; background: rgba(240,236,228,0.3);
-    cursor: pointer; transition: background 0.4s, width 0.4s;
-  }
-  .dot.active { background: var(--gold); width: 40px; }
-
-  /* ─── MARQUEE ─── */
-  .marquee-wrap {
-    background: var(--gold); padding: 1rem 0; overflow: hidden;
-    position: relative; z-index: 1;
-  }
-  .marquee-track {
-    display: flex; gap: 3rem; width: max-content;
-    animation: marquee 18s linear infinite;
-  }
-  .marquee-item {
-    font-family: var(--serif); font-size: 0.75rem; font-style: italic;
-    letter-spacing: 0.1em; color: var(--black); white-space: nowrap;
-    display: flex; align-items: center; gap: 3rem;
-  }
-  .marquee-item::after { content: '✦'; font-style: normal; }
-
-  /* ─── ABOUT STRIP ─── */
-  .about {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 0;
-    min-height: 80vh;
-  }
-  .about-visual {
-    position: relative; overflow: hidden;
-    background: url('https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=900&q=80') center/cover;
-  }
-  .about-visual::after {
-    content: ''; position: absolute; inset: 0;
-    background: rgba(8,8,8,0.3);
-  }
-  .about-text {
-    padding: 8rem 5rem; display: flex; flex-direction: column; justify-content: center;
-    background: #0f0d0b;
-  }
-  .section-tag {
-    font-size: 0.6rem; letter-spacing: 0.4em; text-transform: uppercase;
-    color: var(--gold); margin-bottom: 2rem;
-  }
-  .about-heading {
-    font-family: var(--serif); font-size: clamp(2rem, 4vw, 3.5rem);
-    font-weight: 700; line-height: 1.15; margin-bottom: 2rem;
-  }
-  .about-heading em { font-style: italic; color: var(--gold); }
-  .about-body {
-    font-size: 0.85rem; line-height: 2; color: rgba(240,236,228,0.55);
-    margin-bottom: 3rem; max-width: 420px;
-  }
-  .stats-row { display: flex; gap: 3rem; }
-  .stat-num {
-    font-family: var(--serif); font-size: 2.5rem; font-weight: 900;
-    color: var(--white); line-height: 1;
-  }
-  .stat-label {
-    font-size: 0.6rem; letter-spacing: 0.25em; text-transform: uppercase;
-    color: var(--muted); margin-top: 0.4rem;
-  }
-
-  /* ─── SERVICES ─── */
-  .services {
-    padding: 8rem 4rem;
-    background: var(--black);
-  }
-  .services-header {
-    display: flex; align-items: flex-end; justify-content: space-between;
-    margin-bottom: 5rem;
-  }
-  .services-title {
-    font-family: var(--serif); font-size: clamp(2.5rem, 5vw, 5rem);
-    font-weight: 900; line-height: 1.05;
-  }
-  .services-title em { font-style: italic; color: var(--gold); display: block; }
-  .services-sub {
-    font-size: 0.8rem; max-width: 250px; text-align: right;
-    color: rgba(240,236,228,0.4); line-height: 1.8;
-  }
-
-  .service-list { border-top: 1px solid rgba(240,236,228,0.08); }
-  .service-item {
-    display: grid; grid-template-columns: 60px 1fr auto;
-    align-items: center; gap: 3rem;
-    padding: 2.5rem 0; border-bottom: 1px solid rgba(240,236,228,0.08);
-    cursor: pointer; transition: padding 0.4s;
-  }
-  .service-item:hover { padding-left: 1rem; }
-  .service-item:hover .service-name { color: var(--gold); }
-  .service-num { font-family: var(--serif); font-size: 0.7rem; color: var(--muted); }
-  .service-name { font-family: var(--serif); font-size: clamp(1.2rem, 2.5vw, 2rem); font-weight: 700; transition: color 0.3s; }
-  .service-desc { font-size: 0.75rem; color: var(--muted); max-width: 260px; text-align: right; line-height: 1.7; }
-  .service-arrow { font-size: 1.5rem; color: var(--gold); opacity: 0; transition: opacity 0.3s; }
-  .service-item:hover .service-arrow { opacity: 1; }
-
-  /* ─── WORK GRID ─── */
-  .work { padding: 8rem 4rem; background: #080808; }
-  .work-label {
-    font-size: 0.6rem; letter-spacing: 0.4em; text-transform: uppercase;
-    color: var(--gold); margin-bottom: 1rem;
-  }
-  .work-title {
-    font-family: var(--serif); font-size: clamp(2rem, 4vw, 4rem);
-    font-weight: 900; margin-bottom: 4rem;
-  }
-  .work-grid {
-    display: grid; grid-template-columns: 1.4fr 1fr;
-    grid-template-rows: 400px 300px; gap: 1.5rem;
-  }
-  .work-card {
-    position: relative; overflow: hidden; cursor: pointer;
-    background: #161412;
-  }
-  .work-card:first-child { grid-row: 1 / 3; }
-  .work-card img {
-    width: 100%; height: 100%; object-fit: cover;
-    transition: transform 0.7s cubic-bezier(0.16,1,0.3,1), filter 0.5s;
-    filter: grayscale(30%);
-  }
-  .work-card:hover img { transform: scale(1.06); filter: grayscale(0%); }
-  .work-card-info {
-    position: absolute; bottom: 0; left: 0; right: 0;
-    padding: 2rem; background: linear-gradient(to top, rgba(8,8,8,0.9) 0%, transparent 100%);
-    transform: translateY(30%); opacity: 0;
-    transition: transform 0.4s, opacity 0.4s;
-  }
-  .work-card:hover .work-card-info { transform: translateY(0); opacity: 1; }
-  .work-card-title { font-family: var(--serif); font-size: 1.3rem; font-weight: 700; }
-  .work-card-tag { font-size: 0.6rem; letter-spacing: 0.25em; color: var(--gold); text-transform: uppercase; margin-top: 0.3rem; }
-
-  /* ─── CTA BANNER ─── */
-  .cta-banner {
-    padding: 10rem 4rem; text-align: center;
-    background: #0a0806;
-    position: relative; overflow: hidden;
-  }
-  .cta-banner::before {
-    content: 'START';
-    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-    font-family: var(--serif); font-size: 25vw; font-weight: 900;
-    color: rgba(201,168,76,0.03); pointer-events: none; white-space: nowrap;
-    letter-spacing: -0.05em;
-  }
-  .cta-title {
-    font-family: var(--serif); font-size: clamp(3rem, 7vw, 7rem);
-    font-weight: 900; line-height: 1; margin-bottom: 2rem;
-  }
-  .cta-title em { font-style: italic; color: var(--gold); }
-  .cta-sub {
-    font-size: 0.85rem; color: rgba(240,236,228,0.4);
-    margin-bottom: 4rem; letter-spacing: 0.05em;
-  }
-  .cta-btn {
-    display: inline-block; padding: 1.2rem 4rem;
-    border: 1px solid var(--gold); color: var(--white);
-    text-decoration: none; font-size: 0.7rem; letter-spacing: 0.3em;
-    text-transform: uppercase; transition: background 0.4s, color 0.4s;
-  }
-  .cta-btn:hover { background: var(--gold); color: var(--black); }
-
-  /* ─── FOOTER ─── */
-  footer {
-    padding: 5rem 4rem 3rem;
-    display: grid; grid-template-columns: 1fr 1fr 1fr;
-    gap: 3rem; border-top: 1px solid rgba(240,236,228,0.08);
-    background: var(--black);
-  }
-  .footer-logo { font-family: var(--serif); font-size: 1.5rem; font-weight: 900; letter-spacing: 0.2em; }
-  .footer-sub { font-size: 0.7rem; color: var(--muted); margin-top: 0.5rem; letter-spacing: 0.1em; }
-  .footer-col h4 { font-size: 0.6rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); margin-bottom: 1.5rem; }
-  .footer-col ul { list-style: none; }
-  .footer-col li { margin-bottom: 0.8rem; }
-  .footer-col a { font-size: 0.8rem; color: rgba(240,236,228,0.5); text-decoration: none; transition: color 0.3s; }
-  .footer-col a:hover { color: var(--white); }
-  .footer-bottom { grid-column: 1 / -1; border-top: 1px solid rgba(240,236,228,0.06); padding-top: 2rem; display: flex; justify-content: space-between; align-items: center; }
-  .footer-copy { font-size: 0.65rem; color: var(--muted); letter-spacing: 0.1em; }
-
-  /* ─── KEYFRAMES ─── */
-  @keyframes slideUp {
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes fadeUp {
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes marquee {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
-  }
-
-  /* ─── SCROLL REVEAL ─── */
-  .reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.9s cubic-bezier(0.16,1,0.3,1), transform 0.9s cubic-bezier(0.16,1,0.3,1); }
-  .reveal.visible { opacity: 1; transform: translateY(0); }
-
-  /* ─── MOBILE ─── */
-  @media (max-width: 768px) {
-    nav { padding: 1.5rem 2rem; }
-    .nav-links { display: none; }
-    .hero { padding: 0 2rem 5rem; }
-    .about { grid-template-columns: 1fr; }
-    .about-visual { height: 50vh; }
-    .about-text { padding: 4rem 2rem; }
-    .services { padding: 5rem 2rem; }
-    .services-header { flex-direction: column; gap: 2rem; }
-    .services-sub { text-align: left; }
-    .service-item { grid-template-columns: 40px 1fr; }
-    .service-desc { display: none; }
-    .work { padding: 5rem 2rem; }
-    .work-grid { grid-template-columns: 1fr; grid-template-rows: 300px 250px 250px; }
-    .work-card:first-child { grid-row: auto; }
-    footer { grid-template-columns: 1fr; padding: 3rem 2rem; }
-    .cta-banner { padding: 6rem 2rem; }
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RAGSPRO | Premium Digital Agency</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #0a0a0f;
+      --surface: #12121a;
+      --surface-light: #1a1a25;
+      --border: rgba(255,255,255,0.08);
+      --text: #ffffff;
+      --text-muted: rgba(255,255,255,0.6);
+      --accent: #6366f1;
+      --accent-glow: rgba(99,102,241,0.4);
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 1.5rem 4rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(10,10,15,0.8);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .logo span { color: var(--accent); }
+    .nav-links {
+      display: flex;
+      gap: 3rem;
+      list-style: none;
+    }
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: color 0.3s;
+      position: relative;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--accent);
+      transition: width 0.3s;
+    }
+    .nav-links a:hover::after { width: 100%; }
+    .nav-cta {
+      padding: 0.75rem 1.5rem;
+      background: var(--accent);
+      color: white;
+      border-radius: 100px;
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    .nav-cta:hover {
+      box-shadow: 0 0 30px var(--accent-glow);
+      transform: translateY(-2px);
+    }
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 8rem 4rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 20% 40%, rgba(99,102,241,0.15), transparent),
+        radial-gradient(ellipse 60% 40% at 80% 60%, rgba(168,85,247,0.1), transparent);
+      animation: bgPulse 8s ease-in-out infinite;
+    }
+    @keyframes bgPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    .hero-content { max-width: 800px; position: relative; z-index: 1; }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+    .hero-badge::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: #22c55e;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    .hero h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(3rem, 6vw, 5rem);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 span {
+      background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      font-size: 1.25rem;
+      color: var(--text-muted);
+      max-width: 500px;
+      margin-bottom: 2.5rem;
+      line-height: 1.7;
+    }
+    .hero-ctas { display: flex; gap: 1rem; }
+    .btn {
+      padding: 1rem 2rem;
+      border-radius: 100px;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      border: none;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+    .btn-primary:hover {
+      box-shadow: 0 10px 40px var(--accent-glow);
+      transform: translateY(-2px);
+    }
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover {
+      background: var(--surface-light);
+      border-color: var(--accent);
+    }
+    .floating-shapes {
+      position: absolute;
+      right: 5%;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 500px;
+      height: 500px;
+      perspective: 1000px;
+    }
+    .shape {
+      position: absolute;
+      border-radius: 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+      transition: transform 0.3s;
+    }
+    .shape-1 {
+      width: 300px;
+      height: 200px;
+      top: 0;
+      right: 0;
+      background: linear-gradient(135deg, rgba(99,102,241,0.2), rgba(168,85,247,0.1));
+      animation: float1 6s ease-in-out infinite;
+    }
+    .shape-2 {
+      width: 200px;
+      height: 280px;
+      top: 150px;
+      right: 250px;
+      background: linear-gradient(135deg, rgba(168,85,247,0.2), rgba(236,72,153,0.1));
+      animation: float2 8s ease-in-out infinite;
+    }
+    .shape-3 {
+      width: 150px;
+      height: 150px;
+      bottom: 50px;
+      right: 100px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(99,102,241,0.3), rgba(168,85,247,0.2));
+      animation: float3 7s ease-in-out infinite;
+    }
+    @keyframes float1 {
+      0%, 100% { transform: translateY(0) rotateX(0deg) rotateY(0deg); }
+      50% { transform: translateY(-20px) rotateX(5deg) rotateY(5deg); }
+    }
+    @keyframes float2 {
+      0%, 100% { transform: translateY(0) rotateX(0deg) rotateY(0deg); }
+      50% { transform: translateY(20px) rotateX(-5deg) rotateY(-5deg); }
+    }
+    @keyframes float3 {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-30px) scale(1.1); }
+    }
+    .stats {
+      padding: 4rem;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .stat-item { text-align: center; }
+    .stat-value {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 3rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .stat-label {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+    }
+    .work {
+      padding: 8rem 4rem;
+    }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 4rem;
+      max-width: 1200px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .section-header h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 3rem;
+      font-weight: 700;
+    }
+    .view-all {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.3s;
+    }
+    .view-all:hover { color: var(--accent); }
+    .work-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .work-card {
+      position: relative;
+      border-radius: 24px;
+      overflow: hidden;
+      aspect-ratio: 16/10;
+      cursor: pointer;
+      transform-style: preserve-3d;
+      transition: transform 0.5s;
+    }
+    .work-card:hover {
+      transform: translateY(-10px) rotateX(5deg);
+    }
+    .work-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s;
+    }
+    .work-card:hover img { transform: scale(1.1); }
+    .work-card-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(10,10,15,0.95) 0%, transparent 60%);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 2rem;
+    }
+    .work-card h3 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+    .work-card p {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+    .services {
+      padding: 8rem 4rem;
+      background: var(--surface);
+    }
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .service-card {
+      padding: 2.5rem;
+      background: var(--surface-light);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      transition: all 0.4s;
+      cursor: pointer;
+    }
+    .service-card:hover {
+      transform: translateY(-10px);
+      border-color: var(--accent);
+      box-shadow: 0 20px 60px rgba(99,102,241,0.15);
+    }
+    .service-card h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--accent);
+    }
+    .service-card p {
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+    .cta {
+      padding: 8rem 4rem;
+      text-align: center;
+    }
+    .cta-box {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 4rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 32px;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-box::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: conic-gradient(from 0deg, transparent, var(--accent), transparent 30%);
+      animation: rotate 10s linear infinite;
+      opacity: 0.05;
+    }
+    @keyframes rotate {
+      100% { transform: rotate(360deg); }
+    }
+    .cta-content { position: relative; z-index: 1; }
+    .cta h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+    .cta p {
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+    footer {
+      padding: 4rem;
+      border-top: 1px solid var(--border);
+    }
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    footer p {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+    .footer-links {
+      display: flex;
+      gap: 2rem;
+    }
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.3s;
+    }
+    .footer-links a:hover { color: var(--accent); }
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+      .hero { padding: 6rem 1.5rem 3rem; }
+      .hero h1 { font-size: 2.5rem; }
+      .floating-shapes { display: none; }
+      .hero-ctas { flex-direction: column; }
+      .stats { grid-template-columns: repeat(2, 1fr); padding: 2rem 1.5rem; }
+      .work { padding: 4rem 1.5rem; }
+      .work-grid { grid-template-columns: 1fr; }
+      .section-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+      .services { padding: 4rem 1.5rem; }
+      .services-grid { grid-template-columns: 1fr; }
+      .cta { padding: 4rem 1.5rem; }
+      .cta-box { padding: 2rem; }
+      footer { padding: 2rem 1.5rem; }
+      .footer-content { flex-direction: column; gap: 1rem; text-align: center; }
+    }
+  </style>
 </head>
 <body>
-
-<!-- CURSOR -->
-<div class="cursor" id="cursor"></div>
-<div class="cursor-ring" id="cursorRing"></div>
-
-<!-- NAV -->
-<nav>
-  <a href="#" class="nav-logo">RAGSPRO</a>
-  <ul class="nav-links">
-    <li><a href="#work">Work</a></li>
-    <li><a href="#services">Services</a></li>
-    <li><a href="#about">About</a></li>
-    <li><a href="#contact">Contact</a></li>
-  </ul>
-</nav>
-
-<!-- HERO SLIDER -->
-<section class="hero">
-  <div class="slide slide-1 active"></div>
-  <div class="slide slide-2"></div>
-  <div class="slide slide-3"></div>
-  <div class="slide slide-4"></div>
-
-  <div class="hero-content">
-    <p class="hero-eyebrow">AI × Automation × Digital</p>
-    <h1 class="hero-title" id="heroTitle">
-      <span class="hero-line">Build</span>
-      <span class="hero-line">Smarter</span>
-      <span class="hero-line">Systems</span>
-    </h1>
-    <p class="hero-sub">
-      We design AI-powered products and automation systems that make your business run itself.
-    </p>
-    <a href="#work" class="hero-cta">Explore Work</a>
-  </div>
-
-  <div class="slide-counter" id="slideCounter">01 / 04</div>
-
-  <div class="slide-dots">
-    <div class="dot active" onclick="goSlide(0)"></div>
-    <div class="dot" onclick="goSlide(1)"></div>
-    <div class="dot" onclick="goSlide(2)"></div>
-    <div class="dot" onclick="goSlide(3)"></div>
-  </div>
-</section>
-
-<!-- MARQUEE -->
-<div class="marquee-wrap">
-  <div class="marquee-track">
-    <div class="marquee-item">AI Automation</div>
-    <div class="marquee-item">Full-Stack Development</div>
-    <div class="marquee-item">SaaS Products</div>
-    <div class="marquee-item">Mobile Apps</div>
-    <div class="marquee-item">Digital Strategy</div>
-    <div class="marquee-item">n8n Workflows</div>
-    <div class="marquee-item">AI Automation</div>
-    <div class="marquee-item">Full-Stack Development</div>
-    <div class="marquee-item">SaaS Products</div>
-    <div class="marquee-item">Mobile Apps</div>
-    <div class="marquee-item">Digital Strategy</div>
-    <div class="marquee-item">n8n Workflows</div>
-  </div>
-</div>
-
-<!-- ABOUT -->
-<section class="about" id="about">
-  <div class="about-visual"></div>
-  <div class="about-text">
-    <p class="section-tag reveal">Who We Are</p>
-    <h2 class="about-heading reveal">
-      Builders who make <em>things work</em> while you sleep.
-    </h2>
-    <p class="about-body reveal">
-      RAGSPRO is a Delhi-based AI automation and full-stack agency. We don't just build products — we engineer systems that grow, scale, and operate autonomously. From SaaS to mobile apps to AI pipelines.
-    </p>
-    <div class="stats-row reveal">
-      <div>
-        <div class="stat-num">12+</div>
-        <div class="stat-label">Projects Shipped</div>
-      </div>
-      <div>
-        <div class="stat-num">3</div>
-        <div class="stat-label">Live SaaS Products</div>
-      </div>
-      <div>
-        <div class="stat-num">∞</div>
-        <div class="stat-label">Automations Built</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- SERVICES -->
-<section class="services" id="services">
-  <div class="services-header">
-    <h2 class="services-title reveal">
-      What We <em>Build</em>
-    </h2>
-    <p class="services-sub reveal">
-      End-to-end digital products powered by AI — from idea to production.
-    </p>
-  </div>
-
-  <div class="service-list">
-    <div class="service-item reveal">
-      <span class="service-num">01</span>
-      <span class="service-name">AI Automation</span>
-      <span class="service-desc">n8n pipelines, LLM integrations, autonomous agents that eliminate manual work.</span>
-      <span class="service-arrow">↗</span>
-    </div>
-    <div class="service-item reveal">
-      <span class="service-num">02</span>
-      <span class="service-name">SaaS Development</span>
-      <span class="service-desc">Next.js + Supabase full-stack products with subscription billing baked in.</span>
-      <span class="service-arrow">↗</span>
-    </div>
-    <div class="service-item reveal">
-      <span class="service-num">03</span>
-      <span class="service-name">Mobile Apps</span>
-      <span class="service-desc">Flutter cross-platform apps for clinics, coaching centers, and startups.</span>
-      <span class="service-arrow">↗</span>
-    </div>
-    <div class="service-item reveal">
-      <span class="service-num">04</span>
-      <span class="service-name">Digital Strategy</span>
-      <span class="service-desc">Revenue architecture, automation blueprints, and product roadmaps.</span>
-      <span class="service-arrow">↗</span>
-    </div>
-  </div>
-</section>
-
-<!-- WORK -->
-<section class="work" id="work">
-  <p class="work-label reveal">Selected Work</p>
-  <h2 class="work-title reveal">Products We've Shipped</h2>
-  <div class="work-grid">
-    <div class="work-card reveal">
-      <img src="https://images.unsplash.com/photo-1589994965851-a8f479c573a9?w=900&q=80" alt="LAW AI">
-      <div class="work-card-info">
-        <div class="work-card-title">LAW AI</div>
-        <div class="work-card-tag">Legal SaaS · AI · India</div>
-      </div>
-    </div>
-    <div class="work-card reveal">
-      <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=700&q=80" alt="GymFlow">
-      <div class="work-card-info">
-        <div class="work-card-title">GymFlow</div>
-        <div class="work-card-tag">Flutter · AI Fitness</div>
-      </div>
-    </div>
-    <div class="work-card reveal">
-      <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=700&q=80" alt="Agency OS">
-      <div class="work-card-info">
-        <div class="work-card-title">Agency OS</div>
-        <div class="work-card-tag">Automation Dashboard</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- CTA -->
-<section class="cta-banner" id="contact">
-  <h2 class="cta-title reveal">
-    Let's Build<br><em>Something Real.</em>
-  </h2>
-  <p class="cta-sub reveal">Ready to automate, scale, and ship?</p>
-  <a href="mailto:raghav@ragspro.com" class="cta-btn reveal">Start A Project</a>
-</section>
-
-<!-- FOOTER -->
-<footer>
-  <div>
-    <div class="footer-logo">RAGSPRO</div>
-    <div class="footer-sub">Delhi, India · ragspro.com</div>
-  </div>
-  <div class="footer-col">
-    <h4>Work</h4>
-    <ul>
-      <li><a href="#">LAW AI</a></li>
-      <li><a href="#">GymFlow</a></li>
-      <li><a href="#">Agency OS</a></li>
+  <nav>
+    <a href="#" class="logo">RAGS<span>PRO</span></a>
+    <ul class="nav-links">
+      <li><a href="#work">Work</a></li>
+      <li><a href="#services">Services</a></li>
+      <li><a href="#about">About</a></li>
     </ul>
-  </div>
-  <div class="footer-col">
-    <h4>Contact</h4>
-    <ul>
-      <li><a href="mailto:raghav@ragspro.com">raghav@ragspro.com</a></li>
-      <li><a href="#">LinkedIn</a></li>
-      <li><a href="#">Instagram</a></li>
-    </ul>
-  </div>
-  <div class="footer-bottom">
-    <span class="footer-copy">© 2026 RAGSPRO. All rights reserved.</span>
-    <span class="footer-copy">Built with AI. Powered by ✦</span>
-  </div>
-</footer>
+    <a href="mailto:ragsproai@gmail.com" class="nav-cta">Start Project</a>
+  </nav>
 
-<script>
-  // ── CURSOR ──
-  const cursor = document.getElementById('cursor');
-  const ring = document.getElementById('cursorRing');
-  let mx = 0, my = 0, rx = 0, ry = 0;
-  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
-  function animCursor() {
-    cursor.style.left = mx + 'px'; cursor.style.top = my + 'px';
-    rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12;
-    ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
-    requestAnimationFrame(animCursor);
-  }
-  animCursor();
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <div class="hero-badge">Available for new projects</div>
+      <h1>We build <span>digital products</span> that scale.</h1>
+      <p>RAGSPRO is a Delhi-based development studio specializing in SaaS products, AI automation, and mobile applications.</p>
+      <div class="hero-ctas">
+        <a href="#work" class="btn btn-primary">View Our Work</a>
+        <a href="mailto:ragsproai@gmail.com" class="btn btn-secondary">Get in Touch</a>
+      </div>
+    </div>
+    <div class="floating-shapes">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+      <div class="shape shape-3"></div>
+    </div>
+  </section>
 
-  // ── SLIDER ──
-  const slides = document.querySelectorAll('.slide');
-  const dots = document.querySelectorAll('.dot');
-  const counter = document.getElementById('slideCounter');
-  const heroLines = [
-    ['Build', 'Smarter', 'Systems'],
-    ['Exceptional', 'By', 'Design'],
-    ['Powerful', 'AI', 'Experiences'],
-    ['Your Brand,', 'Fully', 'Automated']
-  ];
-  let cur = 0;
+  <div class="stats">
+    <div class="stat-item">
+      <div class="stat-value">50+</div>
+      <div class="stat-label">Projects Delivered</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value">12</div>
+      <div class="stat-label">Team Members</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value">99%</div>
+      <div class="stat-label">Client Satisfaction</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value">24/7</div>
+      <div class="stat-label">Support Available</div>
+    </div>
+  </div>
 
-  function goSlide(n) {
-    slides[cur].classList.remove('active');
-    dots[cur].classList.remove('active');
-    cur = n;
-    slides[cur].classList.add('active');
-    dots[cur].classList.add('active');
-    counter.textContent = `0${cur+1} / 04`;
-    // Animate title lines
-    const title = document.getElementById('heroTitle');
-    title.querySelectorAll('.hero-line').forEach((el, i) => {
-      el.style.animation = 'none';
-      el.textContent = heroLines[cur][i] || '';
-      void el.offsetWidth;
-      el.style.animation = `slideUp 0.7s ${i * 0.15}s cubic-bezier(0.16,1,0.3,1) forwards`;
+  <section class="work" id="work">
+    <div class="section-header">
+      <h2>Selected Work</h2>
+      <a href="#" class="view-all">View all projects</a>
+    </div>
+    <div class="work-grid">
+      <div class="work-card">
+        <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80" alt="LAW AI Dashboard">
+        <div class="work-card-overlay">
+          <h3>LAW AI</h3>
+          <p>Legal SaaS Platform / AI-Powered</p>
+        </div>
+      </div>
+      <div class="work-card">
+        <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&q=80" alt="GymFlow App">
+        <div class="work-card-overlay">
+          <h3>GymFlow</h3>
+          <p>Fitness App / Flutter</p>
+        </div>
+      </div>
+      <div class="work-card">
+        <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80" alt="Agency OS">
+        <div class="work-card-overlay">
+          <h3>Agency OS</h3>
+          <p>Automation Dashboard / n8n</p>
+        </div>
+      </div>
+      <div class="work-card">
+        <img src="https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=800&q=80" alt="RAGS Pro">
+        <div class="work-card-overlay">
+          <h3>RAGS Pro</h3>
+          <p>AI Extension / Chrome</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="services" id="services">
+    <div class="section-header" style="justify-content: center; margin-bottom: 4rem;">
+      <h2>Our Services</h2>
+    </div>
+    <div class="services-grid">
+      <div class="service-card">
+        <h3>SaaS Development</h3>
+        <p>Full-stack applications with Next.js, Supabase, and Stripe. Complete subscription-based products.</p>
+      </div>
+      <div class="service-card">
+        <h3>AI Automation</h3>
+        <p>Intelligent workflows using n8n, LLM integrations, and autonomous agents.</p>
+      </div>
+      <div class="service-card">
+        <h3>Mobile Apps</h3>
+        <p>Cross-platform development with Flutter. Native performance on iOS and Android.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta" id="contact">
+    <div class="cta-box">
+      <div class="cta-content">
+        <h2>Ready to build something great?</h2>
+        <p>Let's discuss your project and see how we can help.</p>
+        <a href="mailto:ragsproai@gmail.com" class="btn btn-primary">Start a Project</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-content">
+      <p>2026 RAGSPRO. All rights reserved.</p>
+      <div class="footer-links">
+        <a href="mailto:ragsproai@gmail.com">ragsproai@gmail.com</a>
+        <a href="#">Twitter</a>
+        <a href="#">LinkedIn</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    gsap.registerPlugin(ScrollTrigger);
+    gsap.from('.hero-badge', { opacity: 0, y: 30, duration: 0.8, delay: 0.2 });
+    gsap.from('.hero h1', { opacity: 0, y: 50, duration: 1, delay: 0.4 });
+    gsap.from('.hero p', { opacity: 0, y: 30, duration: 0.8, delay: 0.6 });
+    gsap.from('.hero-ctas', { opacity: 0, y: 30, duration: 0.8, delay: 0.8 });
+    gsap.from('.stat-item', {
+      scrollTrigger: { trigger: '.stats', start: 'top 80%' },
+      opacity: 0, y: 50, stagger: 0.1, duration: 0.8
     });
-  }
-
-  setInterval(() => goSlide((cur + 1) % 4), 5000);
-
-  // ── SCROLL REVEAL ──
-  const obs = new IntersectionObserver(entries => {
-    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-  }, { threshold: 0.15 });
-  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
-</script>
+    gsap.from('.work-card', {
+      scrollTrigger: { trigger: '.work-grid', start: 'top 80%' },
+      opacity: 0, y: 60, stagger: 0.15, duration: 0.8
+    });
+    gsap.from('.service-card', {
+      scrollTrigger: { trigger: '.services-grid', start: 'top 80%' },
+      opacity: 0, y: 60, stagger: 0.15, duration: 0.8
+    });
+    document.addEventListener('mousemove', (e) => {
+      const shapes = document.querySelectorAll('.shape');
+      const x = (e.clientX / window.innerWidth - 0.5) * 30;
+      const y = (e.clientY / window.innerHeight - 0.5) * 30;
+      shapes.forEach((shape, index) => {
+        const speed = (index + 1) * 0.5;
+        shape.style.transform = `translate(${x * speed}px, ${y * speed}px)`;
+      });
+    });
+  </script>
 </body>
 </html>
